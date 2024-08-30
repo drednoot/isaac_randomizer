@@ -1,9 +1,11 @@
+use crate::randomizer::characters::Character;
+use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, Mantle};
 use enumflags2::bitflags;
-use strum_macros::{EnumIter, EnumCount as EnumCountMacro};
-use strum::IntoEnumIterator;
 use enumflags2::BitFlags;
-use std::fmt;
 use std::collections::HashSet;
+use std::fmt;
+use strum::IntoEnumIterator;
+use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
 #[bitflags]
 #[repr(u16)]
@@ -18,6 +20,11 @@ pub enum Target {
     UltraGreed,
     BossRush,
     Hush,
+
+    Satan,
+    Isaac,
+    Heart,
+    Mom,
 }
 
 impl Target {
@@ -41,7 +48,51 @@ impl fmt::Display for Target {
             UltraGreed => write!(f, "Ultra Greed"),
             BossRush => write!(f, "Boss Rush"),
             Hush => write!(f, "Hush"),
+
+            Satan => write!(f, "Satan"),
+            Isaac => write!(f, "Isaac"),
+            Heart => write!(f, "Mom's Heart"),
+            Mom => write!(f, "Mom"),
         }
     }
 }
 
+impl HasDependency for Target {
+    fn depends_on(&self) -> Dependency {
+        use Dependency::*;
+        use Target::*;
+        match self {
+            BlueBaby => Singular(DependencyValue::Target(Isaac)),
+            Lamb => Singular(DependencyValue::Target(Satan)),
+            MegaSatan => Sum(vec![
+                DependencyValue::Target(Lamb),
+                DependencyValue::Target(BlueBaby),
+            ]),
+            Delirium => Singular(DependencyValue::Target(Hush)),
+            Beast => Singular(DependencyValue::Target(Mother)),
+            Mother => Product(vec![
+                DependencyValue::Target(Hush),
+                DependencyValue::Mantle(Mantle),
+            ]),
+            UltraGreed => None,
+            BossRush => None,
+            Hush => Singular(DependencyValue::Character(Character::BlueBaby)),
+
+            Satan => Singular(DependencyValue::Target(Heart)),
+            Isaac => Singular(DependencyValue::Target(Heart)),
+            Heart => Singular(DependencyValue::Target(Mom)),
+            Mom => None,
+        }
+    }
+}
+
+impl Target {
+    pub fn is_significant(&self) -> bool {
+        use Target::*;
+        match self {
+            BlueBaby | Lamb | MegaSatan | Delirium | Beast | Mother | UltraGreed | BossRush
+            | Hush => true,
+            _ => false,
+        }
+    }
+}
