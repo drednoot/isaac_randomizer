@@ -8,7 +8,7 @@ Overly engineered isaac randomizer
 - [x] it lives unlock
 - [x] hush and boss rush chance of rolling with other targets
 - [x] hush and/or boss rush guaranteed when only one target is left
-- [ ] mega satan showing up in ???/Lamb rolls if unlocked
+- [x] mega satan showing up in ???/Lamb rolls if unlocked
 - [ ] roll for anything if all marks are unlocked
 - [ ] add mom as a bool, not a target for all characters
 - [ ] read/write to toml
