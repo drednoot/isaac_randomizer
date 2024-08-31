@@ -154,7 +154,12 @@ impl Unlocks {
                 .filter(|rem| self.unlocked_targets.contains(rem) && rem.is_significant())
                 .cloned()
                 .collect(),
-            None => self.unlocked_targets.clone(),
+            None => self
+                .unlocked_targets
+                .iter()
+                .filter(|unlocked| unlocked.is_significant())
+                .cloned()
+                .collect(),
         };
         if valid_targets.contains(&Target::Mother) && !self.is_mantle_unlocked {
             valid_targets.remove(&Target::Mother);
