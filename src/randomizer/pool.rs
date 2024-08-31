@@ -3,6 +3,7 @@ use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, 
 use crate::randomizer::targets::Target;
 use enumflags2::BitFlags;
 use rand::seq::SliceRandom;
+use rand::Rng;
 use std::collections::{HashMap, HashSet};
 use strum::IntoEnumIterator;
 
@@ -13,6 +14,8 @@ pub struct Unlocks {
     unlocked_targets: HashSet<Target>,
     is_mantle_unlocked: bool,
     is_it_lives_unlocked: bool,
+    boss_rush_chance: f32,
+    hush_chance: f32,
 }
 
 impl Default for Unlocks {
@@ -23,6 +26,8 @@ impl Default for Unlocks {
             unlocked_targets: HashSet::new(),
             is_mantle_unlocked: false,
             is_it_lives_unlocked: false,
+            boss_rush_chance: 0.5,
+            hush_chance: 0.5,
         }
     }
 }
@@ -95,7 +100,17 @@ impl Unlocks {
         self
     }
 
-    pub fn get_random_pick(&self) -> Option<(Character, Target)> {
+    pub fn set_boss_rush_chance(&mut self, chance: f32) -> &mut Self {
+        self.boss_rush_chance = chance;
+        self
+    }
+
+    pub fn set_hush_chance(&mut self, chance: f32) -> &mut Self {
+        self.hush_chance = chance;
+        self
+    }
+
+    pub fn get_random_pick(&self) -> Option<(Character, HashSet<Target>)> {
         let mut not_finished: HashSet<Character> = HashSet::new();
         for ch in &self.unlocked_chars {
             match self.marks.get(ch) {
@@ -356,14 +371,63 @@ impl Unlocks {
         }
     }
 
-    fn roll_pool(&self, pool: HashMap<Character, HashSet<Target>>) -> Option<(Character, Target)> {
+    fn roll_pool(
+        &self,
+        pool: HashMap<Character, HashSet<Target>>,
+    ) -> Option<(Character, HashSet<Target>)> {
         let char_pool: Vec<Character> = pool.iter().map(|(ch, _)| -> Character { *ch }).collect();
 
         let rand_char = char_pool.choose(&mut rand::thread_rng())?;
-        let target_pool: Vec<Target> = pool.get(rand_char)?.iter().map(|targ| *targ).collect();
+        let mut is_hush_in_pool = false;
+        let mut is_boss_rush_in_pool = false;
+        let target_pool: Vec<Target> = pool
+            .get(rand_char)?
+            .iter()
+            .map(|targ| *targ)
+            .filter(|targ| match targ {
+                Target::BossRush => {
+                    is_boss_rush_in_pool = true;
+                    false
+                }
+                Target::Hush => {
+                    is_hush_in_pool = true;
+                    false
+                }
+                _ => true,
+            })
+            .collect();
+        let is_hush_in_pool = is_hush_in_pool;
+        let is_boss_rush_in_pool = is_boss_rush_in_pool;
 
-        let rand_target = target_pool.choose(&mut rand::thread_rng())?;
+        let mut targets = HashSet::new();
 
-        Some((*rand_char, *rand_target))
+        let mut rng = rand::thread_rng();
+
+        if !target_pool.is_empty() {
+            let rand_target = target_pool.choose(&mut rng)?;
+            targets.insert(*rand_target);
+        }
+
+        if target_pool.len() == 1 || target_pool.is_empty() {
+            if is_hush_in_pool {
+                targets.insert(Target::Hush);
+            }
+            if is_boss_rush_in_pool {
+                targets.insert(Target::BossRush);
+            }
+        } else {
+            if is_hush_in_pool && (rng.gen::<f32>() <= self.hush_chance) {
+                targets.insert(Target::Hush);
+            }
+            if is_boss_rush_in_pool && (rng.gen::<f32>() <= self.boss_rush_chance) {
+                targets.insert(Target::Hush);
+            }
+        }
+
+        if targets.is_empty() {
+            None
+        } else {
+            Some((*rand_char, targets))
+        }
     }
 }
