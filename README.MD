@@ -10,5 +10,6 @@ Overly engineered isaac randomizer
 - [ ] hush and/or boss rush guaranteed when only one target is left
 - [ ] mega satan showing up in ???/Lamb rolls if unlocked
 - [ ] roll for anything if all marks are unlocked
+- [ ] add mom as a bool, not a target for all characters
 - [ ] read/write to toml
 - [ ] GUI (probly on gtk but well see)
