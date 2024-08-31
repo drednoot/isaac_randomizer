@@ -12,6 +12,7 @@ pub struct Unlocks {
     unlocked_chars: HashSet<Character>,
     unlocked_targets: HashSet<Target>,
     is_mantle_unlocked: bool,
+    is_it_lives_unlocked: bool,
 }
 
 impl Default for Unlocks {
@@ -21,6 +22,7 @@ impl Default for Unlocks {
             unlocked_chars: HashSet::from([Character::Isaac]),
             unlocked_targets: HashSet::new(),
             is_mantle_unlocked: false,
+            is_it_lives_unlocked: false,
         }
     }
 }
@@ -85,6 +87,11 @@ impl Unlocks {
 
     pub fn set_mantle_unlocked(&mut self, is_unlocked: bool) -> &mut Self {
         self.is_mantle_unlocked = is_unlocked;
+        self
+    }
+
+    pub fn set_it_lives_unlocked(&mut self, is_unlocked: bool) -> &mut Self {
+        self.is_it_lives_unlocked = is_unlocked;
         self
     }
 
@@ -262,14 +269,25 @@ impl Unlocks {
                 self.resolve_dependency(&ch.depends_on(), targets);
             }
             DependencyValue::Target(targ) => {
-                for ch in &self.unlocked_chars {
-                    let set = targets.entry(*ch).or_insert(HashSet::new());
-                    set.insert(*targ);
-                }
+                self.add_target_to_unlocked_chars(*targ, targets);
             }
-            DependencyValue::Mantle(mantle) => {
-                self.resolve_dependency(&mantle.depends_on(), targets);
+            DependencyValue::Mantle(_) => {
+                self.add_target_to_unlocked_chars(Target::UltraGreed, targets);
             }
+            DependencyValue::ItLives(_) => {
+                self.add_target_to_unlocked_chars(Target::Heart, targets);
+            }
+        }
+    }
+
+    fn add_target_to_unlocked_chars(
+        &self,
+        target: Target,
+        targets: &mut HashMap<Character, HashSet<Target>>,
+    ) {
+        for ch in &self.unlocked_chars {
+            let set = targets.entry(*ch).or_insert(HashSet::new());
+            set.insert(target);
         }
     }
 
@@ -299,13 +317,7 @@ impl Unlocks {
     }
 
     fn is_dependency_val_unlockable(&self, dep_val: &DependencyValue) -> bool {
-        use DependencyValue::*;
-
-        match dep_val {
-            Character(ch) => self.is_unlocked_now(&ch.depends_on()),
-            Target(targ) => self.is_unlocked_now(&targ.depends_on()),
-            Mantle(mantle) => self.is_unlocked_now(&mantle.depends_on()),
-        }
+        self.is_unlocked_now(&dep_val.depends_on())
     }
 
     fn is_unlocked_now(&self, dep: &Dependency) -> bool {
@@ -340,6 +352,7 @@ impl Unlocks {
             Character(ch) => self.unlocked_chars.contains(ch),
             Target(targ) => self.unlocked_targets.contains(targ),
             Mantle(_) => self.is_mantle_unlocked,
+            ItLives(_) => self.is_it_lives_unlocked,
         }
     }
 

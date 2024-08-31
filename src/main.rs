@@ -11,7 +11,10 @@ fn main() {
         .set_unlocked_chars(HashSet::from([Character::Isaac]))
         // .set_unlocked_targets(HashSet::from([Target::Mom]));
         .add_marks(Character::Isaac, Target::Mom.into())
-        .add_marks(Character::Isaac, Target::Heart.into());
+        .add_marks(Character::Isaac, Target::Heart.into())
+        .add_marks(Character::Isaac, Target::UltraGreed.into())
+        .set_mantle_unlocked(true);
+
     let unlocks = unlocks;
 
     match unlocks.get_random_pick() {

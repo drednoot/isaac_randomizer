@@ -1,5 +1,5 @@
 use crate::randomizer::characters::Character;
-use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, Mantle};
+use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, ItLives, Mantle};
 use enumflags2::bitflags;
 use enumflags2::BitFlags;
 use std::collections::HashSet;
@@ -78,8 +78,8 @@ impl HasDependency for Target {
             BossRush => None,
             Hush => Singular(DependencyValue::Character(Character::BlueBaby)),
 
-            Satan => Singular(DependencyValue::Target(Heart)),
-            Isaac => Singular(DependencyValue::Target(Heart)),
+            Satan => Singular(DependencyValue::ItLives(ItLives)),
+            Isaac => Singular(DependencyValue::ItLives(ItLives)),
             Heart => Singular(DependencyValue::Target(Mom)),
             Mom => None,
         }
