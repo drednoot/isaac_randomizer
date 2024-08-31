@@ -383,26 +383,24 @@ impl Unlocks {
         let char_pool: Vec<Character> = pool.iter().map(|(ch, _)| -> Character { *ch }).collect();
 
         let rand_char = char_pool.choose(&mut rand::thread_rng())?;
-        let mut is_hush_in_pool = false;
-        let mut is_boss_rush_in_pool = false;
+        let mut special_in_pool: HashSet<Target> = HashSet::new();
         let target_pool: Vec<Target> = pool
             .get(rand_char)?
             .iter()
             .map(|targ| *targ)
             .filter(|targ| match targ {
-                Target::BossRush => {
-                    is_boss_rush_in_pool = true;
+                Target::BossRush | Target::Hush | Target::MegaSatan => {
+                    special_in_pool.insert(*targ);
                     false
                 }
-                Target::Hush => {
-                    is_hush_in_pool = true;
-                    false
+                Target::UltraGreed => {
+                    special_in_pool.insert(*targ);
+                    true
                 }
                 _ => true,
             })
             .collect();
-        let is_hush_in_pool = is_hush_in_pool;
-        let is_boss_rush_in_pool = is_boss_rush_in_pool;
+        let special_in_pool = special_in_pool;
 
         let mut targets = HashSet::new();
 
@@ -410,21 +408,37 @@ impl Unlocks {
 
         if !target_pool.is_empty() {
             let rand_target = target_pool.choose(&mut rng)?;
+            if rand_target == &Target::UltraGreed {
+                targets.insert(*rand_target);
+                return Some((*rand_char, targets));
+            }
+
+            if matches!(rand_target, Target::Lamb | Target::BlueBaby)
+                && special_in_pool.contains(&Target::MegaSatan)
+            {
+                targets.insert(Target::MegaSatan);
+            }
+
             targets.insert(*rand_target);
         }
 
-        if target_pool.len() == 1 || target_pool.is_empty() {
-            if is_hush_in_pool {
+        if target_pool.len() == 1
+            || (target_pool.len() == 2 && special_in_pool.contains(&Target::UltraGreed))
+            || target_pool.is_empty()
+        {
+            if special_in_pool.contains(&Target::Hush) {
                 targets.insert(Target::Hush);
             }
-            if is_boss_rush_in_pool {
+            if special_in_pool.contains(&Target::BossRush) {
                 targets.insert(Target::BossRush);
             }
         } else {
-            if is_hush_in_pool && (rng.gen::<f32>() <= self.hush_chance) {
+            if special_in_pool.contains(&Target::Hush) && (rng.gen::<f32>() <= self.hush_chance) {
                 targets.insert(Target::Hush);
             }
-            if is_boss_rush_in_pool && (rng.gen::<f32>() <= self.boss_rush_chance) {
+            if special_in_pool.contains(&Target::BossRush)
+                && (rng.gen::<f32>() <= self.boss_rush_chance)
+            {
                 targets.insert(Target::Hush);
             }
         }
