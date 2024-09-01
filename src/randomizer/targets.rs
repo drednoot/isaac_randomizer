@@ -2,16 +2,12 @@ use crate::randomizer::characters::Character;
 use crate::randomizer::dependency::{
     Dependency, DependencyValue, HasDependency, ItLives, Mantle, Negative, Polaroid,
 };
-use enumflags2::bitflags;
-use enumflags2::BitFlags;
 use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
 use strum::IntoEnumIterator;
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
-#[bitflags]
-#[repr(u16)]
 #[derive(Copy, Clone, EnumIter, EnumCountMacro, Debug, Hash, Eq, PartialEq)]
 pub enum Target {
     BlueBaby,
@@ -32,9 +28,9 @@ pub enum Target {
 }
 
 impl Target {
-    pub fn get_remaining(completed: &BitFlags<Target>) -> HashSet<Target> {
+    pub fn get_remaining(completed: &HashSet<Target>) -> HashSet<Target> {
         Target::iter()
-            .filter(|item| !completed.contains(BitFlags::from_flag(item.to_owned())))
+            .filter(|item| !completed.contains(item))
             .collect()
     }
 }

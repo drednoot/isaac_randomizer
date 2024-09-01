@@ -1,7 +1,6 @@
 use crate::randomizer::characters::Character;
 use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, Mantle};
 use crate::randomizer::targets::Target;
-use enumflags2::BitFlags;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std::collections::{HashMap, HashSet};
@@ -9,7 +8,7 @@ use strum::IntoEnumIterator;
 
 #[derive(Debug)]
 pub struct Unlocks {
-    marks: HashMap<Character, BitFlags<Target>>,
+    marks: HashMap<Character, HashSet<Target>>,
     unlocked_chars: HashSet<Character>,
     unlocked_targets: HashSet<Target>,
     is_mantle_unlocked: bool,
@@ -49,18 +48,7 @@ impl Unlocks {
             }
         });
 
-        let mut flags = BitFlags::empty();
-        for mark in marks {
-            flags.set(mark, true);
-        }
-
-        match self.marks.get_mut(&ch) {
-            Some(completed) => completed.insert(flags),
-            None => {
-                self.marks.insert(ch, flags);
-            }
-        };
-
+        self.marks.insert(ch, marks);
         self
     }
 
@@ -89,12 +77,12 @@ impl Unlocks {
 
             for targ in targets.iter() {
                 if !self.unlocked_targets.contains(&targ) {
-                    to_remove.push(targ);
+                    to_remove.push(*targ);
                 }
             }
 
             for targ_to_remove in to_remove {
-                targets.remove(targ_to_remove);
+                targets.remove(&targ_to_remove);
             }
         }
 
@@ -155,15 +143,8 @@ impl Unlocks {
 
         let mut not_finished: HashSet<Character> = HashSet::new();
         for ch in &self.unlocked_chars {
-            match self.marks.get(ch) {
-                Some(targ) => {
-                    if !targ.is_all() {
-                        not_finished.insert(ch.clone());
-                    }
-                }
-                None => {
-                    not_finished.insert(ch.clone());
-                }
+            if !self.is_char_completed(&ch) {
+                not_finished.insert(ch.clone());
             }
         }
         let not_finished = not_finished;
@@ -187,21 +168,25 @@ impl Unlocks {
 
     fn is_everything_unlocked(&self) -> bool {
         for ch in Character::iter() {
-            if !self.unlocked_chars.contains(&ch) {
+            if !self.is_char_completed(&ch) {
                 return false;
-            }
-            match self.marks.get(&ch) {
-                Some(marks) => {
-                    for targ in Target::iter().filter(|t| t.is_significant()) {
-                        if !marks.contains(targ) {
-                            return false;
-                        }
-                    }
-                }
-                None => return false,
             }
         }
 
+        true
+    }
+
+    fn is_char_completed(&self, ch: &Character) -> bool {
+        match self.marks.get(&ch) {
+            Some(marks) => {
+                for targ in Target::iter().filter(|t| t.is_significant()) {
+                    if !marks.contains(&targ) {
+                        return false;
+                    }
+                }
+            }
+            None => return false,
+        };
         true
     }
 
