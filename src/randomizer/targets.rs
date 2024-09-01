@@ -5,6 +5,7 @@ use crate::randomizer::dependency::{
 use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
+use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
@@ -129,5 +130,29 @@ impl PartialOrd for Target {
 impl Ord for Target {
     fn cmp(&self, rhs: &Self) -> Ordering {
         self.precedence().cmp(&rhs.precedence())
+    }
+}
+
+impl FromStr for Target {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use Target::*;
+        match s {
+            "???" => Ok(BlueBaby),
+            "The Lamb" => Ok(Lamb),
+            "Mega Satan" => Ok(MegaSatan),
+            "Delirium" => Ok(Delirium),
+            "Beast" => Ok(Beast),
+            "Mother" => Ok(Mother),
+            "Ultra Greed" => Ok(UltraGreed),
+            "Boss Rush" => Ok(BossRush),
+            "Hush" => Ok(Hush),
+            "Satan" => Ok(Satan),
+            "Isaac" => Ok(Isaac),
+            "Mom's Heart" => Ok(Heart),
+            "Mom" => Ok(Mom),
+            _ => Err("Could not convert string to Target"),
+        }
     }
 }

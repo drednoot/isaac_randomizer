@@ -1,9 +1,8 @@
 use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, Mantle};
 use crate::randomizer::targets::Target;
 use std::fmt;
+use std::str::FromStr;
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
-
-// const SETTINGS: &str = "settings.toml";
 
 #[derive(EnumIter, EnumCountMacro, Hash, Eq, PartialEq, Debug, Clone, Copy)]
 pub enum Character {
@@ -118,6 +117,51 @@ impl fmt::Display for Character {
             TaintedForgotten => write!(f, "Tainted Forgotten"),
             TaintedBethany => write!(f, "Tainted Behtany"),
             TaintedJacob => write!(f, "Tainted Jacob"),
+        }
+    }
+}
+
+impl FromStr for Character {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use Character::*;
+        match s {
+            "Isaac" => Ok(Isaac),
+            "Magdalene" => Ok(Magdalene),
+            "Cain" => Ok(Cain),
+            "Judas" => Ok(Judas),
+            "???" => Ok(BlueBaby),
+            "Eve" => Ok(Eve),
+            "Samson" => Ok(Samson),
+            "Azazel" => Ok(Azazel),
+            "Lazarus" => Ok(Lazarus),
+            "Eden" => Ok(Eden),
+            "Lost" => Ok(Lost),
+            "Lilith" => Ok(Lilith),
+            "Keeper" => Ok(Keeper),
+            "Apollyon" => Ok(Apollyon),
+            "Forgotten" => Ok(Forgotten),
+            "Behtany" => Ok(Bethany),
+            "Jacob & Esau" => Ok(JacobAndEsau),
+            "Tainted Isaac" => Ok(TaintedIsaac),
+            "Tainted Magdalene" => Ok(TaintedMagdalene),
+            "Tainted Cain" => Ok(TaintedCain),
+            "Tainted Judas" => Ok(TaintedJudas),
+            "Tainted ???" => Ok(TaintedBlueBaby),
+            "Tainted Eve" => Ok(TaintedEve),
+            "Tainted Samson" => Ok(TaintedSamson),
+            "Tainted Azazael" => Ok(TaintedAzazel),
+            "Tainted Lazarus" => Ok(TaintedLazarus),
+            "Tainted Eden" => Ok(TaintedEden),
+            "Tainted Lost" => Ok(TaintedLost),
+            "Tainted Lilith" => Ok(TaintedLilith),
+            "Tainted Keeper" => Ok(TaintedKeeper),
+            "Tainted Apollyon" => Ok(TaintedApollyon),
+            "Tainted Forgotten" => Ok(TaintedForgotten),
+            "Tainted Behtany" => Ok(TaintedBethany),
+            "Tainted Jacob" => Ok(TaintedJacob),
+            _ => Err("Could not convert string to Character"),
         }
     }
 }

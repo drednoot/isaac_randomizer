@@ -1,6 +1,7 @@
 use crate::randomizer::characters::Character;
 use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, Mantle};
 use crate::randomizer::targets::Target;
+use crate::toml_parse::savefile::{General, Marks, Savefile};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std::collections::{HashMap, HashSet};
@@ -38,6 +39,32 @@ impl Default for Unlocks {
 }
 
 impl Unlocks {
+    pub fn new(
+        marks: HashMap<Character, HashSet<Target>>,
+        unlocked_chars: HashSet<Character>,
+        unlocked_targets: HashSet<Target>,
+        is_mantle_unlocked: bool,
+        is_it_lives_unlocked: bool,
+        is_polaroid_unlocked: bool,
+        is_negative_unlocked: bool,
+        is_mom_beaten: bool,
+        boss_rush_chance: f32,
+        hush_chance: f32,
+    ) -> Self {
+        Self {
+            marks,
+            unlocked_chars,
+            unlocked_targets,
+            is_mantle_unlocked,
+            is_it_lives_unlocked,
+            is_polaroid_unlocked,
+            is_negative_unlocked,
+            is_mom_beaten,
+            boss_rush_chance,
+            hush_chance,
+        }
+    }
+
     pub fn set_marks(&mut self, ch: Character, marks: HashSet<Target>) -> &mut Self {
         if !self.unlocked_chars.contains(&ch) {
             self.unlocked_chars.insert(ch);
@@ -99,7 +126,7 @@ impl Unlocks {
         self
     }
 
-    pub fn set_is_mom_beaten(&mut self, is_beaten: bool) -> &mut Self {
+    pub fn set_mom_beaten(&mut self, is_beaten: bool) -> &mut Self {
         self.is_mom_beaten = is_beaten;
         self
     }
@@ -133,7 +160,7 @@ impl Unlocks {
         }
         self.set_mantle_unlocked(true)
             .set_it_lives_unlocked(true)
-            .set_is_mom_beaten(true);
+            .set_mom_beaten(true);
     }
 
     pub fn get_random_pick(&self) -> Option<(Character, HashSet<Target>)> {
@@ -530,5 +557,40 @@ impl Unlocks {
         } else {
             Some((*rand_char, targets))
         }
+    }
+}
+
+impl Into<Savefile> for Unlocks {
+    fn into(self) -> Savefile {
+        Savefile::new(
+            General::new(
+                self.unlocked_chars
+                    .iter()
+                    .map(|ch| -> String { format!("{}", ch) })
+                    .collect(),
+                self.unlocked_targets
+                    .iter()
+                    .map(|targ| -> String { format!("{}", targ) })
+                    .collect(),
+                self.is_mantle_unlocked,
+                self.is_it_lives_unlocked,
+                self.is_polaroid_unlocked,
+                self.is_negative_unlocked,
+                self.is_mom_beaten,
+                self.boss_rush_chance,
+                self.hush_chance,
+            ),
+            HashMap::from_iter(self.marks.iter().map(|(ch, targs)| -> (String, Marks) {
+                (
+                    format!("{}", ch),
+                    Marks::new(
+                        targs
+                            .iter()
+                            .map(|targ| -> String { format!("{}", targ) })
+                            .collect(),
+                    ),
+                )
+            })),
+        )
     }
 }

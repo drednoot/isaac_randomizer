@@ -1,4 +1,4 @@
 pub mod characters;
-pub mod targets;
-pub mod pool;
 mod dependency;
+pub mod pool;
+pub mod targets;
