@@ -466,6 +466,12 @@ impl Unlocks {
                 return Some((*rand_char, targets));
             }
 
+            if rand_target == &Target::Delirium {
+                targets.insert(Target::Delirium);
+                targets.insert(Target::Hush);
+                return Some((*rand_char, targets));
+            }
+
             if matches!(rand_target, Target::Lamb | Target::BlueBaby)
                 && special_in_pool.contains(&Target::MegaSatan)
             {
