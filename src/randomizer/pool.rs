@@ -1,7 +1,7 @@
 use crate::randomizer::characters::Character;
 use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, Mantle};
 use crate::randomizer::targets::Target;
-use enumflags2::BitFlags;
+use enumflags2::{make_bitflags, BitFlags};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std::collections::{HashMap, HashSet};
@@ -33,7 +33,7 @@ impl Default for Unlocks {
 }
 
 impl Unlocks {
-    pub fn add_marks(&mut self, ch: Character, marks: BitFlags<Target>) -> &mut Self {
+    pub fn set_marks(&mut self, ch: Character, marks: HashSet<Target>) -> &mut Self {
         if !self.unlocked_chars.contains(&ch) {
             self.unlocked_chars.insert(ch);
         }
@@ -43,10 +43,15 @@ impl Unlocks {
             }
         });
 
+        let mut flags = BitFlags::empty();
+        for mark in marks {
+            flags.set(mark, true);
+        }
+
         match self.marks.get_mut(&ch) {
-            Some(completed) => completed.insert(marks),
+            Some(completed) => completed.insert(flags),
             None => {
-                self.marks.insert(ch, marks);
+                self.marks.insert(ch, flags);
             }
         };
 
@@ -110,7 +115,21 @@ impl Unlocks {
         self
     }
 
+    pub fn set_everything_unlocked(&mut self) {
+        for ch in Character::iter() {
+            let targs = Target::iter()
+                .filter(|targ| targ.is_significant())
+                .collect();
+            self.set_marks(ch, targs);
+        }
+        self.set_mantle_unlocked(true).set_it_lives_unlocked(true);
+    }
+
     pub fn get_random_pick(&self) -> Option<(Character, HashSet<Target>)> {
+        if self.is_everything_unlocked() {
+            return self.roll_pool(Self::everything_pool());
+        }
+
         let mut not_finished: HashSet<Character> = HashSet::new();
         for ch in &self.unlocked_chars {
             match self.marks.get(ch) {
@@ -141,6 +160,39 @@ impl Unlocks {
         let pool = pool;
 
         self.roll_pool(pool)
+    }
+
+    fn is_everything_unlocked(&self) -> bool {
+        for ch in Character::iter() {
+            if !self.unlocked_chars.contains(&ch) {
+                return false;
+            }
+            match self.marks.get(&ch) {
+                Some(marks) => {
+                    for targ in Target::iter().filter(|t| t.is_significant()) {
+                        if !marks.contains(targ) {
+                            return false;
+                        }
+                    }
+                }
+                None => return false,
+            }
+        }
+
+        true
+    }
+
+    fn everything_pool() -> HashMap<Character, HashSet<Target>> {
+        let mut pool = HashMap::new();
+
+        for ch in Character::iter() {
+            let targets: HashSet<Target> = Target::iter()
+                .filter(|targ| targ.is_significant())
+                .collect();
+            pool.insert(ch, targets);
+        }
+
+        pool
     }
 
     fn unlocked_targets_for(&self, ch: &Character) -> HashSet<Target> {
