@@ -445,7 +445,7 @@ impl Unlocks {
                     special_in_pool.insert(*targ);
                     false
                 }
-                Target::UltraGreed => {
+                Target::UltraGreed | Target::Beast => {
                     special_in_pool.insert(*targ);
                     true
                 }
@@ -460,6 +460,7 @@ impl Unlocks {
 
         if !target_pool.is_empty() {
             let rand_target = target_pool.choose(&mut rng)?;
+
             if rand_target == &Target::UltraGreed {
                 targets.insert(*rand_target);
                 return Some((*rand_char, targets));
@@ -474,24 +475,27 @@ impl Unlocks {
             targets.insert(*rand_target);
         }
 
+        let should_roll_hush =
+            special_in_pool.contains(&Target::Hush) && !targets.contains(&Target::Beast);
+
         if target_pool.len() == 1
             || (target_pool.len() == 2 && special_in_pool.contains(&Target::UltraGreed))
             || target_pool.is_empty()
         {
-            if special_in_pool.contains(&Target::Hush) {
+            if should_roll_hush {
                 targets.insert(Target::Hush);
             }
             if special_in_pool.contains(&Target::BossRush) {
                 targets.insert(Target::BossRush);
             }
         } else {
-            if special_in_pool.contains(&Target::Hush) && (rng.gen::<f32>() <= self.hush_chance) {
+            if should_roll_hush && (rng.gen::<f32>() <= self.hush_chance) {
                 targets.insert(Target::Hush);
             }
             if special_in_pool.contains(&Target::BossRush)
                 && (rng.gen::<f32>() <= self.boss_rush_chance)
             {
-                targets.insert(Target::Hush);
+                targets.insert(Target::BossRush);
             }
         }
 
