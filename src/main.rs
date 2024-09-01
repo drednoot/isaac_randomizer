@@ -13,7 +13,8 @@ fn main() {
             HashSet::from([Target::Heart, Target::Satan, Target::Isaac]),
         )
         .set_is_mom_beaten(true)
-        .set_it_lives_unlocked(true);
+        .set_it_lives_unlocked(true)
+        .set_polaroid_unlocked(true);
 
     let unlocks = unlocks;
 

@@ -14,6 +14,8 @@ pub struct Unlocks {
     unlocked_targets: HashSet<Target>,
     is_mantle_unlocked: bool,
     is_it_lives_unlocked: bool,
+    is_polaroid_unlocked: bool,
+    is_negative_unlocked: bool,
     is_mom_beaten: bool,
     boss_rush_chance: f32,
     hush_chance: f32,
@@ -27,6 +29,8 @@ impl Default for Unlocks {
             unlocked_targets: HashSet::new(),
             is_mantle_unlocked: false,
             is_it_lives_unlocked: false,
+            is_polaroid_unlocked: false,
+            is_negative_unlocked: false,
             is_mom_beaten: false,
             boss_rush_chance: 0.5,
             hush_chance: 0.5,
@@ -112,6 +116,16 @@ impl Unlocks {
         self
     }
 
+    pub fn set_polaroid_unlocked(&mut self, is_unlocked: bool) -> &mut Self {
+        self.is_polaroid_unlocked = is_unlocked;
+        self
+    }
+
+    pub fn set_negative_unlocked(&mut self, is_unlocked: bool) -> &mut Self {
+        self.is_negative_unlocked = is_unlocked;
+        self
+    }
+
     pub fn set_boss_rush_chance(&mut self, chance: f32) -> &mut Self {
         self.boss_rush_chance = chance;
         self
@@ -121,6 +135,7 @@ impl Unlocks {
         self.hush_chance = chance;
         self
     }
+
     pub fn set_everything_unlocked(&mut self) {
         for ch in Character::iter() {
             let targs = Target::iter()
@@ -360,6 +375,12 @@ impl Unlocks {
             DependencyValue::Mom(_) => {
                 self.add_target_to_unlocked_chars(Target::Mom, targets);
             }
+            DependencyValue::Polaroid(_) => {
+                self.add_target_to_unlocked_chars(Target::Isaac, targets);
+            }
+            DependencyValue::Negative(_) => {
+                self.add_target_to_unlocked_chars(Target::Satan, targets);
+            }
         }
     }
 
@@ -437,6 +458,8 @@ impl Unlocks {
             Mantle(_) => self.is_mantle_unlocked,
             ItLives(_) => self.is_it_lives_unlocked,
             Mom(_) => self.is_mom_beaten,
+            Polaroid(_) => self.is_polaroid_unlocked,
+            Negative(_) => self.is_negative_unlocked,
         }
     }
 

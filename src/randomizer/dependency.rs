@@ -14,6 +14,8 @@ pub enum DependencyValue {
     Mantle(Mantle),
     ItLives(ItLives),
     Mom(Mom),
+    Polaroid(Polaroid),
+    Negative(Negative),
 }
 
 impl HasDependency for DependencyValue {
@@ -26,11 +28,12 @@ impl HasDependency for DependencyValue {
             Mantle(mantle) => mantle.depends_on(),
             ItLives(itlives) => itlives.depends_on(),
             Mom(mom) => mom.depends_on(),
+            Polaroid(polaroid) => polaroid.depends_on(),
+            Negative(negative) => negative.depends_on(),
         }
     }
 }
 
-// holy mantle struct that has a dependency
 pub struct Mantle;
 
 impl HasDependency for Mantle {
@@ -39,7 +42,6 @@ impl HasDependency for Mantle {
     }
 }
 
-// it lives struct that has a dependency
 pub struct ItLives;
 
 impl HasDependency for ItLives {
@@ -48,12 +50,27 @@ impl HasDependency for ItLives {
     }
 }
 
-// mom struct that has a dependency
 pub struct Mom;
 
 impl HasDependency for Mom {
     fn depends_on(&self) -> Dependency {
         Dependency::None
+    }
+}
+
+pub struct Polaroid;
+
+impl HasDependency for Polaroid {
+    fn depends_on(&self) -> Dependency {
+        Dependency::Singular(DependencyValue::Target(Target::Isaac))
+    }
+}
+
+pub struct Negative;
+
+impl HasDependency for Negative {
+    fn depends_on(&self) -> Dependency {
+        Dependency::Singular(DependencyValue::Target(Target::Satan))
     }
 }
 

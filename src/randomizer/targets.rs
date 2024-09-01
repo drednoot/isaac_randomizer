@@ -1,6 +1,6 @@
 use crate::randomizer::characters::Character;
 use crate::randomizer::dependency::{
-    Dependency, DependencyValue, HasDependency, ItLives, Mantle, Mom,
+    Dependency, DependencyValue, HasDependency, ItLives, Mantle, Negative, Polaroid,
 };
 use enumflags2::bitflags;
 use enumflags2::BitFlags;
@@ -67,8 +67,8 @@ impl HasDependency for Target {
         use Dependency::*;
         use Target::*;
         match self {
-            BlueBaby => Singular(DependencyValue::Target(Isaac)),
-            Lamb => Singular(DependencyValue::Target(Satan)),
+            BlueBaby => Singular(DependencyValue::Polaroid(Polaroid)),
+            Lamb => Singular(DependencyValue::Negative(Negative)),
             MegaSatan => Sum(vec![
                 DependencyValue::Target(Lamb),
                 DependencyValue::Target(BlueBaby),
