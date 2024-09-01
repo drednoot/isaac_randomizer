@@ -12,5 +12,6 @@ Overly engineered isaac randomizer
 - [x] roll for anything if all marks are unlocked
 - [ ] roll hush->delirium when delirium is the only one left
 - [ ] add mom as a bool, not a target for all characters
+- [ ] add targets precedence (for simple sorting)
 - [ ] read/write to toml
 - [ ] GUI (probly on gtk but well see)
