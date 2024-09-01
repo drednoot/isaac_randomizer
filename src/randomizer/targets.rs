@@ -1,5 +1,7 @@
 use crate::randomizer::characters::Character;
-use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, ItLives, Mantle};
+use crate::randomizer::dependency::{
+    Dependency, DependencyValue, HasDependency, ItLives, Mantle, Mom,
+};
 use enumflags2::bitflags;
 use enumflags2::BitFlags;
 use std::collections::HashSet;
@@ -24,6 +26,7 @@ pub enum Target {
     Satan,
     Isaac,
     Heart,
+
     Mom,
 }
 
@@ -52,6 +55,7 @@ impl fmt::Display for Target {
             Satan => write!(f, "Satan"),
             Isaac => write!(f, "Isaac"),
             Heart => write!(f, "Mom's Heart"),
+
             Mom => write!(f, "Mom"),
         }
     }
@@ -59,6 +63,7 @@ impl fmt::Display for Target {
 
 impl HasDependency for Target {
     fn depends_on(&self) -> Dependency {
+        use crate::randomizer::dependency::Mom as DepMom;
         use Dependency::*;
         use Target::*;
         match self {
@@ -80,7 +85,8 @@ impl HasDependency for Target {
 
             Satan => Singular(DependencyValue::ItLives(ItLives)),
             Isaac => Singular(DependencyValue::ItLives(ItLives)),
-            Heart => Singular(DependencyValue::Target(Mom)),
+            Heart => Singular(DependencyValue::Mom(DepMom)),
+
             Mom => None,
         }
     }

@@ -13,6 +13,7 @@ pub enum DependencyValue {
     Target(Target),
     Mantle(Mantle),
     ItLives(ItLives),
+    Mom(Mom),
 }
 
 impl HasDependency for DependencyValue {
@@ -24,6 +25,7 @@ impl HasDependency for DependencyValue {
             Target(targ) => targ.depends_on(),
             Mantle(mantle) => mantle.depends_on(),
             ItLives(itlives) => itlives.depends_on(),
+            Mom(mom) => mom.depends_on(),
         }
     }
 }
@@ -43,6 +45,15 @@ pub struct ItLives;
 impl HasDependency for ItLives {
     fn depends_on(&self) -> Dependency {
         Dependency::Singular(DependencyValue::Target(Target::Heart))
+    }
+}
+
+// mom struct that has a dependency
+pub struct Mom;
+
+impl HasDependency for Mom {
+    fn depends_on(&self) -> Dependency {
+        Dependency::None
     }
 }
 

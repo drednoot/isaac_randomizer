@@ -1,7 +1,7 @@
 use crate::randomizer::characters::Character;
 use crate::randomizer::dependency::{Dependency, DependencyValue, HasDependency, Mantle};
 use crate::randomizer::targets::Target;
-use enumflags2::{make_bitflags, BitFlags};
+use enumflags2::BitFlags;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std::collections::{HashMap, HashSet};
@@ -14,6 +14,7 @@ pub struct Unlocks {
     unlocked_targets: HashSet<Target>,
     is_mantle_unlocked: bool,
     is_it_lives_unlocked: bool,
+    is_mom_beaten: bool,
     boss_rush_chance: f32,
     hush_chance: f32,
 }
@@ -26,6 +27,7 @@ impl Default for Unlocks {
             unlocked_targets: HashSet::new(),
             is_mantle_unlocked: false,
             is_it_lives_unlocked: false,
+            is_mom_beaten: false,
             boss_rush_chance: 0.5,
             hush_chance: 0.5,
         }
@@ -105,6 +107,11 @@ impl Unlocks {
         self
     }
 
+    pub fn set_is_mom_beaten(&mut self, is_beaten: bool) -> &mut Self {
+        self.is_mom_beaten = is_beaten;
+        self
+    }
+
     pub fn set_boss_rush_chance(&mut self, chance: f32) -> &mut Self {
         self.boss_rush_chance = chance;
         self
@@ -114,7 +121,6 @@ impl Unlocks {
         self.hush_chance = chance;
         self
     }
-
     pub fn set_everything_unlocked(&mut self) {
         for ch in Character::iter() {
             let targs = Target::iter()
@@ -122,7 +128,9 @@ impl Unlocks {
                 .collect();
             self.set_marks(ch, targs);
         }
-        self.set_mantle_unlocked(true).set_it_lives_unlocked(true);
+        self.set_mantle_unlocked(true)
+            .set_it_lives_unlocked(true)
+            .set_is_mom_beaten(true);
     }
 
     pub fn get_random_pick(&self) -> Option<(Character, HashSet<Target>)> {
@@ -349,6 +357,9 @@ impl Unlocks {
             DependencyValue::ItLives(_) => {
                 self.add_target_to_unlocked_chars(Target::Heart, targets);
             }
+            DependencyValue::Mom(_) => {
+                self.add_target_to_unlocked_chars(Target::Mom, targets);
+            }
         }
     }
 
@@ -425,6 +436,7 @@ impl Unlocks {
             Target(targ) => self.unlocked_targets.contains(targ),
             Mantle(_) => self.is_mantle_unlocked,
             ItLives(_) => self.is_it_lives_unlocked,
+            Mom(_) => self.is_mom_beaten,
         }
     }
 

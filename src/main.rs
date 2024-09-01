@@ -7,7 +7,13 @@ use std::collections::HashSet;
 
 fn main() {
     let mut unlocks = Unlocks::default();
-    unlocks.set_everything_unlocked();
+    unlocks
+        .set_marks(
+            Character::Isaac,
+            HashSet::from([Target::Heart, Target::Satan, Target::Isaac]),
+        )
+        .set_is_mom_beaten(true)
+        .set_it_lives_unlocked(true);
 
     let unlocks = unlocks;
 
