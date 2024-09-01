@@ -14,5 +14,6 @@ Overly engineered isaac randomizer
 - [x] add mom as a bool, not a target for all characters
 - [x] add negative and polaroid unlocks
 - [x] add targets precedence (for simple sorting)
-- [ ] read/write to toml
+- [x] read/write to toml
 - [ ] GUI (probly on gtk but well see)
+- [ ] cross compilation for windows (from linux)
