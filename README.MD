@@ -10,7 +10,7 @@ Overly engineered isaac randomizer
 - [x] hush and/or boss rush guaranteed when only one target is left (excl. beast and ultra greed)
 - [x] mega satan showing up in ???/Lamb rolls if unlocked
 - [x] roll for anything if all marks are unlocked
-- [ ] roll hush->delirium when delirium is the only one left
+- [x] roll hush->delirium when delirium is the only one left
 - [ ] add mom as a bool, not a target for all characters
 - [ ] add targets precedence (for simple sorting)
 - [ ] read/write to toml
