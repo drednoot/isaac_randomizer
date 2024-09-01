@@ -13,6 +13,6 @@ Overly engineered isaac randomizer
 - [x] roll hush->delirium when delirium is the only one left
 - [x] add mom as a bool, not a target for all characters
 - [x] add negative and polaroid unlocks
-- [ ] add targets precedence (for simple sorting)
+- [x] add targets precedence (for simple sorting)
 - [ ] read/write to toml
 - [ ] GUI (probly on gtk but well see)
