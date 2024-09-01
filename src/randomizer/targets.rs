@@ -4,6 +4,7 @@ use crate::randomizer::dependency::{
 };
 use enumflags2::bitflags;
 use enumflags2::BitFlags;
+use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
 use strum::IntoEnumIterator;
@@ -100,5 +101,37 @@ impl Target {
             | Hush => true,
             _ => false,
         }
+    }
+
+    pub fn precedence(&self) -> u8 {
+        use Target::*;
+        match self {
+            Delirium => 7,
+            MegaSatan => 6,
+            BlueBaby => 5,
+            Lamb => 4,
+            Beast => 4,
+            Mother => 4,
+            Satan => 4,
+            Isaac => 4,
+            Hush => 3,
+            Heart => 2,
+            BossRush => 1,
+            Mom => 0,
+
+            UltraGreed => 0,
+        }
+    }
+}
+
+impl PartialOrd for Target {
+    fn partial_cmp(&self, rhs: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(rhs))
+    }
+}
+
+impl Ord for Target {
+    fn cmp(&self, rhs: &Self) -> Ordering {
+        self.precedence().cmp(&rhs.precedence())
     }
 }
