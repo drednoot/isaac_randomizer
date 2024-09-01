@@ -7,9 +7,10 @@ Overly engineered isaac randomizer
 - [x] dependency system that can roll additional targets if not everything was unlocked
 - [x] it lives unlock
 - [x] hush and boss rush chance of rolling with other targets
-- [ ] hush and/or boss rush guaranteed when only one target is left (excl. beast and ultra greed)
+- [x] hush and/or boss rush guaranteed when only one target is left (excl. beast and ultra greed)
 - [x] mega satan showing up in ???/Lamb rolls if unlocked
 - [x] roll for anything if all marks are unlocked
+- [ ] roll hush->delirium when delirium is the only one left
 - [ ] add mom as a bool, not a target for all characters
 - [ ] read/write to toml
 - [ ] GUI (probly on gtk but well see)
