@@ -142,7 +142,7 @@ impl FromStr for Character {
             "Keeper" => Ok(Keeper),
             "Apollyon" => Ok(Apollyon),
             "Forgotten" => Ok(Forgotten),
-            "Behtany" => Ok(Bethany),
+            "Bethany" => Ok(Bethany),
             "Jacob & Esau" => Ok(JacobAndEsau),
             "Tainted Isaac" => Ok(TaintedIsaac),
             "Tainted Magdalene" => Ok(TaintedMagdalene),
