@@ -1,32 +1,13 @@
 mod randomizer;
 mod toml_parse;
+mod tui;
 
-use randomizer::characters::Character;
 use randomizer::pool::Unlocks;
 use randomizer::targets::Target;
-use std::collections::HashSet;
 use toml_parse::savefile::Savefile;
 
 fn main() {
-    let mut unlocks = Unlocks::default();
-    unlocks
-        .set_marks(
-            Character::Isaac,
-            HashSet::from([Target::Heart, Target::Satan, Target::Isaac]),
-        )
-        .set_mom_beaten(true)
-        .set_it_lives_unlocked(true)
-        .set_polaroid_unlocked(true);
-    // .set_everything_unlocked();
-    let unlocks = unlocks;
-
-    let sf: Savefile = unlocks.into();
-    match sf.write_to_file("test.toml".to_string()) {
-        Err(e) => eprintln!("{:?}", e),
-        Ok(_) => {}
-    }
-
-    let sf2: Savefile = match Savefile::read_from_file("test.toml".to_string()) {
+    let sf2: Savefile = match Savefile::read_from_file("sf.toml".to_string()) {
         Err(e) => {
             eprintln!("{:?}", e);
             return;
@@ -41,18 +22,17 @@ fn main() {
         Ok(u) => u,
     };
 
-    println!("{:?}", unlocks);
-
-    // match unlocks.get_random_pick() {
-    //     Some((ch, targs)) => {
-    //         print!("{}\n\nVS\n\n", ch);
-    //         let mut sorted: Vec<Target> = targs.into_iter().collect();
-    //         sorted.sort();
-
-    //         for targ in sorted {
-    //             println!("{}", targ);
-    //         }
-    //     }
-    //     None => println!("Something went wrong !!"),
-    // };
+    match unlocks.get_random_pick() {
+        Some((ch, targs_set)) => {
+            print!("{}\n\nVS\n\n", ch);
+            let mut targs: Vec<&Target> = targs_set.iter().collect();
+            targs.sort();
+            for targ in targs {
+                println!("{}", targ);
+            }
+        }
+        None => {
+            println!("couldn't roll :(");
+        }
+    }
 }
