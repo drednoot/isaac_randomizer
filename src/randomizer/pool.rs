@@ -488,7 +488,7 @@ impl Unlocks {
             .iter()
             .map(|targ| *targ)
             .filter(|targ| match targ {
-                Target::BossRush | Target::Hush | Target::MegaSatan => {
+                Target::BossRush | Target::Hush | Target::MegaSatan | Target::Delirium => {
                     special_in_pool.insert(*targ);
                     false
                 }
@@ -513,12 +513,6 @@ impl Unlocks {
                 return Some((*rand_char, targets));
             }
 
-            if rand_target == &Target::Delirium {
-                targets.insert(Target::Delirium);
-                targets.insert(Target::Hush);
-                return Some((*rand_char, targets));
-            }
-
             if matches!(rand_target, Target::Lamb | Target::BlueBaby)
                 && special_in_pool.contains(&Target::MegaSatan)
             {
@@ -526,6 +520,10 @@ impl Unlocks {
             }
 
             targets.insert(*rand_target);
+        } else if special_in_pool.contains(&Target::Delirium) {
+            targets.insert(Target::Delirium);
+            targets.insert(Target::Hush);
+            return Some((*rand_char, targets));
         }
 
         let should_roll_hush =
