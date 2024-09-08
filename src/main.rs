@@ -1,6 +1,5 @@
 mod randomizer;
 mod toml_parse;
-mod tui;
 
 use randomizer::pool::Unlocks;
 use randomizer::targets::Target;
