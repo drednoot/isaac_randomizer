@@ -1,6 +1,5 @@
 mod randomizer;
 mod toml_parse;
-mod tui;
 
 use randomizer::pool::Unlocks;
 use randomizer::targets::Target;
@@ -32,7 +31,7 @@ fn main() {
             }
         }
         None => {
-            println!("couldn't roll :(");
+            println!("couldn't roll ):");
         }
     }
 }
