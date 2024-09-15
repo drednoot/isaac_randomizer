@@ -526,8 +526,9 @@ impl Unlocks {
             return Some((*rand_char, targets));
         }
 
-        let should_roll_hush =
-            special_in_pool.contains(&Target::Hush) && !targets.contains(&Target::Beast);
+        let should_roll_hush = special_in_pool.contains(&Target::Hush)
+            && !targets.contains(&Target::Beast)
+            && !targets.contains(&Target::Mother);
 
         if target_pool.len() == 1
             || (target_pool.len() == 2 && special_in_pool.contains(&Target::UltraGreed))
