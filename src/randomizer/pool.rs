@@ -19,6 +19,7 @@ pub struct Unlocks {
     is_mom_beaten: bool,
     boss_rush_chance: f32,
     hush_chance: f32,
+    roll_boss_rush_on_alt: bool,
 }
 
 impl Default for Unlocks {
@@ -34,6 +35,7 @@ impl Default for Unlocks {
             is_mom_beaten: false,
             boss_rush_chance: 0.5,
             hush_chance: 0.5,
+            roll_boss_rush_on_alt: false,
         }
     }
 }
@@ -50,6 +52,7 @@ impl Unlocks {
         is_mom_beaten: bool,
         boss_rush_chance: f32,
         hush_chance: f32,
+        roll_boss_rush_on_alt: bool,
     ) -> Self {
         Self {
             marks,
@@ -62,6 +65,7 @@ impl Unlocks {
             is_mom_beaten,
             boss_rush_chance,
             hush_chance,
+            roll_boss_rush_on_alt,
         }
     }
 
@@ -148,6 +152,11 @@ impl Unlocks {
 
     pub fn set_hush_chance(&mut self, chance: f32) -> &mut Self {
         self.hush_chance = chance;
+        self
+    }
+
+    pub fn set_roll_boss_rush_on_alt(&mut self, is_roll: bool) -> &mut Self {
+        self.roll_boss_rush_on_alt = is_roll;
         self
     }
 
@@ -526,6 +535,13 @@ impl Unlocks {
             return Some((*rand_char, targets));
         }
 
+        let should_roll_boss_rush = special_in_pool.contains(&Target::BossRush)
+            && if targets.contains(&Target::Beast) || targets.contains(&Target::Mother) {
+                self.roll_boss_rush_on_alt
+            } else {
+                true
+            };
+
         let should_roll_hush = special_in_pool.contains(&Target::Hush)
             && !targets.contains(&Target::Beast)
             && !targets.contains(&Target::Mother);
@@ -537,16 +553,14 @@ impl Unlocks {
             if should_roll_hush {
                 targets.insert(Target::Hush);
             }
-            if special_in_pool.contains(&Target::BossRush) {
+            if should_roll_boss_rush {
                 targets.insert(Target::BossRush);
             }
         } else {
             if should_roll_hush && (rng.gen::<f32>() <= self.hush_chance) {
                 targets.insert(Target::Hush);
             }
-            if special_in_pool.contains(&Target::BossRush)
-                && (rng.gen::<f32>() <= self.boss_rush_chance)
-            {
+            if should_roll_boss_rush && (rng.gen::<f32>() <= self.boss_rush_chance) {
                 targets.insert(Target::BossRush);
             }
         }
@@ -578,6 +592,7 @@ impl Into<Savefile> for Unlocks {
                 self.is_mom_beaten,
                 self.boss_rush_chance,
                 self.hush_chance,
+                self.roll_boss_rush_on_alt,
             ),
             HashMap::from_iter(self.marks.iter().map(|(ch, targs)| -> (String, Marks) {
                 (

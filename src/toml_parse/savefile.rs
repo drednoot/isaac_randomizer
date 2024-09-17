@@ -83,6 +83,7 @@ pub struct General {
     is_mom_beaten: bool,
     boss_rush_chance: f32,
     hush_chance: f32,
+    roll_boss_rush_on_alt: bool,
 }
 
 impl General {
@@ -96,6 +97,7 @@ impl General {
         is_mom_beaten: bool,
         boss_rush_chance: f32,
         hush_chance: f32,
+        roll_boss_rush_on_alt: bool,
     ) -> Self {
         Self {
             unlocked_chars,
@@ -107,6 +109,7 @@ impl General {
             is_mom_beaten,
             boss_rush_chance,
             hush_chance,
+            roll_boss_rush_on_alt,
         }
     }
 }
@@ -158,7 +161,8 @@ impl TryInto<Unlocks> for Savefile {
             .set_negative_unlocked(self.general_config.is_negative_unlocked)
             .set_mom_beaten(self.general_config.is_mom_beaten)
             .set_boss_rush_chance(self.general_config.boss_rush_chance)
-            .set_hush_chance(self.general_config.hush_chance);
+            .set_hush_chance(self.general_config.hush_chance)
+            .set_roll_boss_rush_on_alt(self.general_config.roll_boss_rush_on_alt);
 
         Ok(unl)
     }
