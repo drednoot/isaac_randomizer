@@ -5,6 +5,7 @@ use std::str::FromStr;
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
 #[derive(EnumIter, EnumCountMacro, Hash, Eq, PartialEq, Debug, Clone, Copy)]
+#[repr(C)]
 pub enum Character {
     Isaac,
     Magdalene,
