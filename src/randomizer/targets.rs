@@ -10,6 +10,7 @@ use strum::IntoEnumIterator;
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
 #[derive(Copy, Clone, EnumIter, EnumCountMacro, Debug, Hash, Eq, PartialEq)]
+#[repr(C)]
 pub enum Target {
     BlueBaby,
     Lamb,
