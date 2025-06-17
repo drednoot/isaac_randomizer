@@ -1,7 +1,5 @@
-# The Binding of Isaac: Repentance randomizer
+# SRATI: Smart Randomized Adventures of Tormented Isaac
 Overly engineered isaac randomizer
-
-
 
 # TODO
 - [x] dependency system that can roll additional targets if not everything was unlocked
