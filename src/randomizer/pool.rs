@@ -16,7 +16,6 @@ pub struct Unlocks {
     is_it_lives_unlocked: bool,
     is_polaroid_unlocked: bool,
     is_negative_unlocked: bool,
-    is_mom_beaten: bool,
     boss_rush_chance: f32,
     hush_chance: f32,
     roll_boss_rush_on_alt: bool,
@@ -27,15 +26,14 @@ impl Default for Unlocks {
         Self {
             marks: HashMap::new(),
             unlocked_chars: HashSet::from([Character::Isaac]),
-            unlocked_targets: HashSet::new(),
+            unlocked_targets: HashSet::from([Target::Mom, Target::UltraGreed, Target::BossRush]),
             is_mantle_unlocked: false,
             is_it_lives_unlocked: false,
             is_polaroid_unlocked: false,
             is_negative_unlocked: false,
-            is_mom_beaten: false,
-            boss_rush_chance: 0.5,
-            hush_chance: 0.5,
-            roll_boss_rush_on_alt: false,
+            boss_rush_chance: 1.0,
+            hush_chance: 1.0,
+            roll_boss_rush_on_alt: true,
         }
     }
 }
@@ -49,7 +47,6 @@ impl Unlocks {
         is_it_lives_unlocked: bool,
         is_polaroid_unlocked: bool,
         is_negative_unlocked: bool,
-        is_mom_beaten: bool,
         boss_rush_chance: f32,
         hush_chance: f32,
         roll_boss_rush_on_alt: bool,
@@ -62,7 +59,6 @@ impl Unlocks {
             is_it_lives_unlocked,
             is_polaroid_unlocked,
             is_negative_unlocked,
-            is_mom_beaten,
             boss_rush_chance,
             hush_chance,
             roll_boss_rush_on_alt,
@@ -130,11 +126,6 @@ impl Unlocks {
         self
     }
 
-    pub fn set_mom_beaten(&mut self, is_beaten: bool) -> &mut Self {
-        self.is_mom_beaten = is_beaten;
-        self
-    }
-
     pub fn set_polaroid_unlocked(&mut self, is_unlocked: bool) -> &mut Self {
         self.is_polaroid_unlocked = is_unlocked;
         self
@@ -169,7 +160,8 @@ impl Unlocks {
         }
         self.set_mantle_unlocked(true)
             .set_it_lives_unlocked(true)
-            .set_mom_beaten(true);
+            .set_polaroid_unlocked(true)
+            .set_negative_unlocked(true);
     }
 
     pub fn get_random_pick(&self) -> Option<(Character, HashSet<Target>)> {
@@ -472,13 +464,14 @@ impl Unlocks {
 
     fn is_dependency_val_unlocked(&self, dep_val: &DependencyValue) -> bool {
         use DependencyValue::*;
+        use crate::randomizer::targets::Target::Heart;
 
         match dep_val {
             Character(ch) => self.unlocked_chars.contains(ch),
             Target(targ) => self.unlocked_targets.contains(targ),
             Mantle(_) => self.is_mantle_unlocked,
             ItLives(_) => self.is_it_lives_unlocked,
-            Mom(_) => self.is_mom_beaten,
+            Mom(_) => self.unlocked_targets.contains(&Heart),
             Polaroid(_) => self.is_polaroid_unlocked,
             Negative(_) => self.is_negative_unlocked,
         }
@@ -573,7 +566,7 @@ impl Unlocks {
     }
 }
 
-impl Into<Savefile> for Unlocks {
+impl Into<Savefile> for &Unlocks {
     fn into(self) -> Savefile {
         Savefile::new(
             General::new(
@@ -589,7 +582,6 @@ impl Into<Savefile> for Unlocks {
                 self.is_it_lives_unlocked,
                 self.is_polaroid_unlocked,
                 self.is_negative_unlocked,
-                self.is_mom_beaten,
                 self.boss_rush_chance,
                 self.hush_chance,
                 self.roll_boss_rush_on_alt,

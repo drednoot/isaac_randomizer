@@ -80,7 +80,6 @@ pub struct General {
     is_it_lives_unlocked: bool,
     is_polaroid_unlocked: bool,
     is_negative_unlocked: bool,
-    is_mom_beaten: bool,
     boss_rush_chance: f32,
     hush_chance: f32,
     roll_boss_rush_on_alt: bool,
@@ -94,7 +93,6 @@ impl General {
         is_it_lives_unlocked: bool,
         is_polaroid_unlocked: bool,
         is_negative_unlocked: bool,
-        is_mom_beaten: bool,
         boss_rush_chance: f32,
         hush_chance: f32,
         roll_boss_rush_on_alt: bool,
@@ -106,7 +104,6 @@ impl General {
             is_it_lives_unlocked,
             is_polaroid_unlocked,
             is_negative_unlocked,
-            is_mom_beaten,
             boss_rush_chance,
             hush_chance,
             roll_boss_rush_on_alt,
@@ -159,7 +156,6 @@ impl TryInto<Unlocks> for Savefile {
             .set_it_lives_unlocked(self.general_config.is_it_lives_unlocked)
             .set_polaroid_unlocked(self.general_config.is_polaroid_unlocked)
             .set_negative_unlocked(self.general_config.is_negative_unlocked)
-            .set_mom_beaten(self.general_config.is_mom_beaten)
             .set_boss_rush_chance(self.general_config.boss_rush_chance)
             .set_hush_chance(self.general_config.hush_chance)
             .set_roll_boss_rush_on_alt(self.general_config.roll_boss_rush_on_alt);
