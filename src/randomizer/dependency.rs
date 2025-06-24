@@ -8,6 +8,7 @@ pub enum Dependency {
     Product(Vec<DependencyValue>),
 }
 
+#[derive(Clone)]
 pub enum DependencyValue {
     Character(Character),
     Target(Target),
@@ -34,6 +35,7 @@ impl HasDependency for DependencyValue {
     }
 }
 
+#[derive(Clone)]
 pub struct Mantle;
 
 impl HasDependency for Mantle {
@@ -42,6 +44,7 @@ impl HasDependency for Mantle {
     }
 }
 
+#[derive(Clone)]
 pub struct ItLives;
 
 impl HasDependency for ItLives {
@@ -50,6 +53,7 @@ impl HasDependency for ItLives {
     }
 }
 
+#[derive(Clone)]
 pub struct Mom;
 
 impl HasDependency for Mom {
@@ -58,6 +62,7 @@ impl HasDependency for Mom {
     }
 }
 
+#[derive(Clone)]
 pub struct Polaroid;
 
 impl HasDependency for Polaroid {
@@ -66,6 +71,7 @@ impl HasDependency for Polaroid {
     }
 }
 
+#[derive(Clone)]
 pub struct Negative;
 
 impl HasDependency for Negative {

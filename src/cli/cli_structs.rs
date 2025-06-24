@@ -22,7 +22,7 @@ impl Unlock {
             return Some(Self::Character(char));
         }
 
-        if let Some(targ) = Self::try_str_to_target(lower_arg) {
+        if let Some(targ) = Self::try_str_to_target(lower_arg, true) {
             return Some(Self::Target(targ));
         }
 
@@ -74,11 +74,11 @@ impl Unlock {
         }
     }
 
-    fn try_str_to_target(str: &str) -> Option<targets::Target> {
+    fn try_str_to_target(str: &str, require_disambiguation: bool) -> Option<targets::Target> {
         use targets::Target::*;
 
         match str {
-            "blue_baby" => Some(BlueBaby),
+            "blue_baby" if !require_disambiguation => Some(BlueBaby),
             "blue_baby_boss" => Some(BlueBaby),
             "the_lamb" => Some(Lamb),
             "mega_satan" => Some(MegaSatan),
@@ -87,10 +87,11 @@ impl Unlock {
             "mother" => Some(Mother),
             "hush" => Some(Hush),
             "satan" => Some(Satan),
-            "isaac" => Some(Isaac),
+            "isaac" if !require_disambiguation => Some(Isaac),
             "isaac_boss" => Some(Isaac),
             "moms_heart" => Some(Heart),
-            "it_lives" => Some(Heart),
+            "it_lives" if !require_disambiguation => Some(Heart),
+            "it_lives_boss" if !require_disambiguation => Some(Heart),
             _ => None
         }
     }

@@ -473,6 +473,7 @@ impl Unlocks {
 
     fn is_dependency_val_unlockable(&self, dep_val: &DependencyValue) -> bool {
         self.is_unlocked_now(&dep_val.depends_on())
+            && !self.is_unlocked_now(&Dependency::Singular(dep_val.clone()))
     }
 
     fn is_unlocked_now(&self, dep: &Dependency) -> bool {
@@ -536,7 +537,7 @@ impl Unlocks {
                     special_in_pool.insert(*targ);
                     true
                 }
-                _ => true,
+                _ => self.is_target_significant(&targ),
             })
             .collect();
         let special_in_pool = special_in_pool;
