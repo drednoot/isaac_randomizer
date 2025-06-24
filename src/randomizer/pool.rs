@@ -65,7 +65,7 @@ impl Unlocks {
         }
     }
 
-    pub fn set_marks(&mut self, ch: Character, marks: HashSet<Target>) -> &mut Self {
+    pub fn add_marks(&mut self, ch: Character, marks: HashSet<Target>) -> &mut Self {
         if !self.unlocked_chars.contains(&ch) {
             self.unlocked_chars.insert(ch);
         }
@@ -96,6 +96,14 @@ impl Unlocks {
         self
     }
 
+    pub fn add_unlocked_chars(&mut self, chars: HashSet<Character>) -> &mut Self {
+        for ch in chars {
+            self.unlocked_chars.insert(ch);
+        }
+
+        self
+    }
+
     pub fn set_unlocked_targets(&mut self, targets: HashSet<Target>) -> &mut Self {
         self.unlocked_targets = targets;
 
@@ -111,6 +119,14 @@ impl Unlocks {
             for targ_to_remove in to_remove {
                 targets.remove(&targ_to_remove);
             }
+        }
+
+        self
+    }
+
+    pub fn add_unlocked_targets(&mut self, targs: HashSet<Target>) -> &mut Self {
+        for targ in targs {
+            self.unlocked_targets.insert(targ);
         }
 
         self
@@ -154,9 +170,9 @@ impl Unlocks {
     pub fn set_everything_unlocked(&mut self) {
         for ch in Character::iter() {
             let targs = Target::iter()
-                .filter(|targ| targ.is_significant())
+                .filter(|targ| self.is_target_significant(targ))
                 .collect();
-            self.set_marks(ch, targs);
+            self.add_marks(ch, targs);
         }
         self.set_mantle_unlocked(true)
             .set_it_lives_unlocked(true)
@@ -207,7 +223,7 @@ impl Unlocks {
     fn is_char_completed(&self, ch: &Character) -> bool {
         match self.marks.get(&ch) {
             Some(marks) => {
-                for targ in Target::iter().filter(|t| t.is_significant()) {
+                for targ in Target::iter().filter(|t| self.is_target_significant(t)) {
                     if !marks.contains(&targ) {
                         return false;
                     }
@@ -239,13 +255,13 @@ impl Unlocks {
         let mut valid_targets: HashSet<Target> = match self.marks.get(&ch) {
             Some(completed) => Target::get_remaining(completed)
                 .iter()
-                .filter(|rem| self.unlocked_targets.contains(rem) && rem.is_significant())
+                .filter(|rem| self.unlocked_targets.contains(rem) && self.is_target_significant(rem))
                 .cloned()
                 .collect(),
             None => self
                 .unlocked_targets
                 .iter()
-                .filter(|unlocked| unlocked.is_significant())
+                .filter(|unlocked| self.is_target_significant(unlocked))
                 .cloned()
                 .collect(),
         };
@@ -533,7 +549,8 @@ impl Unlocks {
                 self.roll_boss_rush_on_alt
             } else {
                 true
-            };
+            }
+            && self.unlocked_targets.contains(&Target::Heart);
 
         let should_roll_hush = special_in_pool.contains(&Target::Hush)
             && !targets.contains(&Target::Beast)
@@ -564,6 +581,21 @@ impl Unlocks {
             Some((*rand_char, targets))
         }
     }
+
+    pub fn is_target_significant(&self, targ: &Target) -> bool {
+        use Target::*;
+        use crate::randomizer::dependency::{Polaroid, Negative, ItLives, Mom as MomDep};
+        match targ {
+            BlueBaby | Lamb | MegaSatan | Delirium | Beast | Mother | UltraGreed | BossRush
+            | Hush => true,
+            Isaac if self.is_dependency_val_unlockable(&DependencyValue::Polaroid(Polaroid)) => true,
+            Satan if self.is_dependency_val_unlockable(&DependencyValue::Negative(Negative)) => true,
+            Heart if self.is_dependency_val_unlockable(&DependencyValue::ItLives(ItLives)) => true,
+            Mom if self.is_dependency_val_unlockable(&DependencyValue::Mom(MomDep)) => true,
+            _ => false,
+        }
+    }
+
 }
 
 impl Into<Savefile> for &Unlocks {

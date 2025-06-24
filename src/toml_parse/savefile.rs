@@ -149,7 +149,7 @@ impl TryInto<Unlocks> for Savefile {
                 let targ = Target::from_str(targ_str.as_str())?;
                 marks_set.insert(targ);
             }
-            unl.set_marks(ch, marks_set);
+            unl.add_marks(ch, marks_set);
         }
 
         unl.set_mantle_unlocked(self.general_config.is_mantle_unlocked)

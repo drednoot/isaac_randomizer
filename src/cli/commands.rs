@@ -3,24 +3,25 @@ use crate::randomizer::targets::Target;
 use crate::toml_parse::savefile::Savefile;
 use crate::toml_parse::savefile::Error;
 
-use clap::{Parser, Subcommand, CommandFactory};
+use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(name = "srati", version = "0.1", about = "Smart Randomized Adventures of Tormented Isaac")]
-struct Cli {
+pub struct Cli {
     #[command(subcommand)]
-    command: Option<Commands>,
+    pub command: Option<Commands>,
 }
 
 #[derive(Subcommand, Debug)]
-enum Commands {
+pub enum Commands {
     #[command(
         long_about = "unlock character/target/unlock\n\
             Available characters to unlock:\n\
+            \tIsaac\n\
             \tMagdalene\n\
             \tCain\n\
             \tJudas\n\
-            \t???\n\
+            \tBlue_Baby\n\
             \tEve\n\
             \tSamson\n\
             \tAzazel\n\
@@ -40,7 +41,7 @@ enum Commands {
             \tTainted_???\n\
             \tTainted_Eve\n\
             \tTainted_Samson\n\
-            \tTainted_Azazael\n\
+            \tTainted_Azazel\n\
             \tTainted_Lazarus\n\
             \tTainted_Eden\n\
             \tTainted_Lost\n\
@@ -48,10 +49,10 @@ enum Commands {
             \tTainted_Keeper\n\
             \tTainted_Apollyon\n\
             \tTainted_Forgotten\n\
-            \tTainted_Behtany\n\
+            \tTainted_Bethany\n\
             \tTainted_Jacob\n\
             Available Targets to unlock:\n\
-            \t???_Boss\n\
+            \tBlue_Baby_Boss\n\
             \tThe_Lamb\n\
             \tMega_Satan\n\
             \tDelirium\n\
@@ -59,7 +60,7 @@ enum Commands {
             \tMother\n\
             \tHush\n\
             \tSatan\n\
-            \tIsaac\n\
+            \tIsaac_Boss\n\
             \tMoms_Heart\n\
             Available Unlocks to set unlocked:\n\
             \tIt_Lives\n\
@@ -88,7 +89,7 @@ enum Commands {
             \tMagdalene\n\
             \tCain\n\
             \tJudas\n\
-            \t???\n\
+            \tBlue_Baby\n\
             \tEve\n\
             \tSamson\n\
             \tAzazel\n\
@@ -100,12 +101,12 @@ enum Commands {
             \tApollyon\n\
             \tForgotten\n\
             \tBethany\n\
-            \tJacob_&_Esau\n\
+            \tJacob_And_Esau\n\
             \tTainted_Isaac\n\
             \tTainted_Magdalene\n\
             \tTainted_Cain\n\
             \tTainted_Judas\n\
-            \tTainted_???\n\
+            \tTainted_blue_baby\n\
             \tTainted_Eve\n\
             \tTainted_Samson\n\
             \tTainted_Azazael\n\
@@ -119,7 +120,7 @@ enum Commands {
             \tTainted_Behtany\n\
             \tTainted_Jacob\n\
             Available Completion Marks to set:\n\
-            \t???\n\
+            \tBlue_Baby\n\
             \tThe_Lamb\n\
             \tMega_Satan\n\
             \tDelirium\n\
@@ -163,96 +164,12 @@ enum Commands {
     },
 }
 
-pub fn parse_cmd() {
-    let cli = Cli::parse();
-
-    match cli.command {
-        Some(Commands::Unlock { unlocks }) => {
-            if unlocks.is_empty() {
-                Cli::command()
-                    .find_subcommand_mut("unlock")
-                    .unwrap()
-                    .print_help()
-                    .unwrap();
-                println!();
-                std::process::exit(1);
-            }
-            for item in unlocks {
-                println!("Unlocking: {}", item);
-            }
-        }
-
-        Some(Commands::Ununlock { unlocks }) => {
-            if unlocks.is_empty() {
-                Cli::command()
-                    .find_subcommand_mut("ununlock")
-                    .unwrap()
-                    .print_help()
-                    .unwrap();
-                println!();
-                std::process::exit(1);
-            }
-            for item in unlocks {
-                println!("Locking: {}", item);
-            }
-        }
-
-        Some(Commands::Mark { character, marks }) => {
-            if character.is_empty() || marks.is_empty() {
-                Cli::command()
-                    .find_subcommand_mut("mark")
-                    .unwrap()
-                    .print_help()
-                    .unwrap();
-                println!();
-                std::process::exit(1);
-            }
-            for mark in marks {
-                println!("Marking for {}: {}", character, mark);
-            }
-        }
-
-        Some(Commands::Unmark { character }) => {
-            if character.is_empty() {
-                Cli::command()
-                    .find_subcommand_mut("unmark")
-                    .unwrap()
-                    .print_help()
-                    .unwrap();
-                println!();
-                std::process::exit(1);
-            }
-            println!("Removing makrs for {}", character);
-        }
-
-        Some(Commands::Set { key, value }) => {
-            let val = value.unwrap();
-            if let Ok(b) = val.parse::<bool>() {
-                println!("Setting {} = {}", key, b);
-            } else if let Ok(f) = val.parse::<f64>() {
-                println!("Setting {} = {}", key, f);
-            }
-        }
-
-        None => {
-            let SavefileInfo { unlocks, created_new_file } = match read_savefile() {
-                Some(val) => val,
-                None => return
-            };
-            get_random_pick(&unlocks);
-            if created_new_file {
-                save_to_savefile(&unlocks);
-            }
-        }
-    }
+pub struct SavefileInfo {
+    pub unlocks: Unlocks,
+    pub created_new_file: bool,
 }
 
-struct SavefileInfo {
-    unlocks: Unlocks,
-    created_new_file: bool,
-}
-
-fn read_savefile() -> Option<SavefileInfo> {
+pub fn read_savefile() -> Option<SavefileInfo> {
     let mut created_new_file = false;
     let unlocks: Unlocks = match Savefile::read_from_file(get_savefile_path().to_string()) {
         Err(Error::IoError(ref e)) if e.kind() == std::io::ErrorKind::NotFound => {
@@ -280,7 +197,7 @@ fn read_savefile() -> Option<SavefileInfo> {
     })
 }
 
-fn get_random_pick(unlocks: &Unlocks) {
+pub fn get_random_pick(unlocks: &Unlocks) {
     match unlocks.get_random_pick() {
         Some((ch, targs_set)) => {
             print!("{}\n\nVS\n\n", ch);
@@ -296,7 +213,7 @@ fn get_random_pick(unlocks: &Unlocks) {
     }
 }
 
-fn save_to_savefile(unlocks: &Unlocks) {
+pub fn save_to_savefile(unlocks: &Unlocks) {
     let savefile: Savefile = Into::into(unlocks);
     match savefile.write_to_file(get_savefile_path().to_string()) {
         Err(e) => {
