@@ -104,6 +104,16 @@ impl Unlocks {
         self
     }
 
+    pub fn remove_unlocked_chars(&mut self, chars: &HashSet<Character>) -> &mut Self {
+        for ch in chars {
+            if self.unlocked_chars.remove(&ch) {
+                self.marks.remove(&ch);
+            }
+        }
+
+        self
+    }
+
     pub fn set_unlocked_targets(&mut self, targets: HashSet<Target>) -> &mut Self {
         self.unlocked_targets = targets;
 
@@ -127,6 +137,18 @@ impl Unlocks {
     pub fn add_unlocked_targets(&mut self, targs: HashSet<Target>) -> &mut Self {
         for targ in targs {
             self.unlocked_targets.insert(targ);
+        }
+
+        self
+    }
+
+    pub fn remove_unlocked_targets(&mut self, targs: &HashSet<Target>) -> &mut Self {
+        for targ in targs {
+            if self.unlocked_targets.remove(&targ) {
+                for (_, marked_targets) in &mut self.marks {
+                    marked_targets.remove(&targ);
+                }
+            }
         }
 
         self

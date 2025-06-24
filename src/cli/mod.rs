@@ -44,12 +44,6 @@ pub fn parse_cmd() {
                     }
                     None => {
                         println!("Skipping unlocking {}, no such item found.", item);
-                        Cli::command()
-                            .find_subcommand_mut("unlock")
-                            .unwrap()
-                            .print_help()
-                            .unwrap();
-                        return;
                     }
                 };
             }
@@ -69,8 +63,36 @@ pub fn parse_cmd() {
                 println!();
                 std::process::exit(1);
             }
+
+            let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
+                Some(val) => val,
+                None => return
+            };
+            let mut savefile_updated = false;
+
             for item in unlocks {
-                println!("Locking: {}", item);
+                match Unlock::from_unlock_arg(item.as_str()) {
+                    Some(u) => {
+                        match u {
+                            Unlock::Character(char) => file_unlocks.remove_unlocked_chars(&HashSet::from([char])),
+                            Unlock::Target(targ) => file_unlocks.remove_unlocked_targets(&HashSet::from([targ])),
+                            Unlock::Unlockable(unl) => match unl {
+                                Unlockable::ItLives => file_unlocks.set_it_lives_unlocked(false),
+                                Unlockable::Polaroid => file_unlocks.set_polaroid_unlocked(false),
+                                Unlockable::Negative => file_unlocks.set_negative_unlocked(false),
+                                Unlockable::HolyMantle => file_unlocks.set_mantle_unlocked(false),
+                            }
+                        };
+                        savefile_updated = true;
+                    }
+                    None => {
+                        println!("Skipping locking {}, no such item found.", item);
+                    }
+                };
+            }
+
+            if savefile_updated || created_new_file {
+                save_to_savefile(&file_unlocks);
             }
         }
 
