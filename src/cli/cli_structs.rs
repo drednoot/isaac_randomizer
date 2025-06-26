@@ -32,7 +32,7 @@ impl Unlock {
         }
     }
 
-    fn try_str_to_character(str: &str) -> Option<characters::Character> {
+    pub fn try_str_to_character(str: &str) -> Option<characters::Character> {
         use characters::Character::*;
 
         match str {
@@ -74,7 +74,7 @@ impl Unlock {
         }
     }
 
-    fn try_str_to_target(str: &str, require_disambiguation: bool) -> Option<targets::Target> {
+    pub fn try_str_to_target(str: &str, require_disambiguation: bool) -> Option<targets::Target> {
         use targets::Target::*;
 
         match str {
@@ -85,6 +85,7 @@ impl Unlock {
             "delirium" => Some(Delirium),
             "beast" => Some(Beast),
             "mother" => Some(Mother),
+            "ultra_greed" => Some(UltraGreed),
             "hush" => Some(Hush),
             "satan" => Some(Satan),
             "isaac" if !require_disambiguation => Some(Isaac),
@@ -96,7 +97,7 @@ impl Unlock {
         }
     }
 
-    fn try_str_to_unlockable(str: &str) -> Option<Unlockable> {
+    pub fn try_str_to_unlockable(str: &str) -> Option<Unlockable> {
         match str {
             "it_lives" => Some( Unlockable::ItLives ),
             "polaroid" => Some( Unlockable::Polaroid ),

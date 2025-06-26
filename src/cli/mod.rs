@@ -43,7 +43,7 @@ pub fn parse_cmd() {
                         savefile_updated = true;
                     }
                     None => {
-                        println!("Skipping unlocking {}, no such item found.", item);
+                        println!("Skipping unlocking {}: no such item found.", item);
                     }
                 };
             }
@@ -86,7 +86,7 @@ pub fn parse_cmd() {
                         savefile_updated = true;
                     }
                     None => {
-                        println!("Skipping locking {}, no such item found.", item);
+                        println!("Skipping locking {}: no such item found.", item);
                     }
                 };
             }
@@ -96,8 +96,8 @@ pub fn parse_cmd() {
             }
         }
 
-        Some(Commands::Mark { character, marks }) => {
-            if character.is_empty() || marks.is_empty() {
+        Some(Commands::Mark { character: char_str, marks: marks_strs }) => {
+            if char_str.is_empty() || marks_strs.is_empty() {
                 Cli::command()
                     .find_subcommand_mut("mark")
                     .unwrap()
@@ -106,13 +106,45 @@ pub fn parse_cmd() {
                 println!();
                 std::process::exit(1);
             }
-            for mark in marks {
-                println!("Marking for {}: {}", character, mark);
+
+            let char = match Unlock::try_str_to_character(char_str.as_str()) {
+                Some(c) => c,
+                None => {
+                    Cli::command()
+                        .find_subcommand_mut("mark")
+                        .unwrap()
+                        .print_help()
+                        .unwrap();
+                    println!("No such character: {}", char_str);
+                    std::process::exit(1);
+                }
+            };
+
+            let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
+                Some(val) => val,
+                None => return
+            };
+            let mut savefile_updated = false;
+
+            for mark_str in marks_strs {
+                match Unlock::try_str_to_target(mark_str.as_str(), false) {
+                    Some(targ) => {
+                        file_unlocks.add_marks(char, HashSet::from([targ]));
+                        savefile_updated = true;
+                    }
+                    None => {
+                        println!("Skipping adding mark {} to character {}: no such target found.", mark_str, char_str);
+                    }
+                }
+            }
+
+            if savefile_updated || created_new_file {
+                save_to_savefile(&file_unlocks);
             }
         }
 
-        Some(Commands::Unmark { character }) => {
-            if character.is_empty() {
+        Some(Commands::Unmark { character: char_str, marks: marks_strs_opt }) => {
+            if char_str.is_empty() {
                 Cli::command()
                     .find_subcommand_mut("unmark")
                     .unwrap()
@@ -121,7 +153,46 @@ pub fn parse_cmd() {
                 println!();
                 std::process::exit(1);
             }
-            println!("Removing makrs for {}", character);
+
+            let char = match Unlock::try_str_to_character(char_str.as_str()) {
+                Some(c) => c,
+                None => {
+                    Cli::command()
+                        .find_subcommand_mut("mark")
+                        .unwrap()
+                        .print_help()
+                        .unwrap();
+                    println!("No such character: {}", char_str);
+                    std::process::exit(1);
+                }
+            };
+
+            let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
+                Some(val) => val,
+                None => return
+            };
+            let mut savefile_updated = false;
+
+            match marks_strs_opt {
+                Some(marks_strs) => {
+                    for mark_str in marks_strs {
+                        match Unlock::try_str_to_target(mark_str.as_str(), false) {
+                            Some(targ) => {
+                                file_unlocks.remove_marks(&char, &HashSet::from([targ]));
+                                savefile_updated = true;
+                            }
+                            None => {
+                                println!("Skipping removing mark {} from character {}: no such target found.", mark_str, char_str);
+                            }
+                        }
+                    }
+                }
+                None => todo!("Add remove all marks method")
+            }
+
+            if savefile_updated || created_new_file {
+                save_to_savefile(&file_unlocks);
+            }
         }
 
         Some(Commands::Set { key, value }) => {

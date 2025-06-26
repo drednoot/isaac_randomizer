@@ -141,12 +141,15 @@ pub enum Commands {
     },
 
     #[command(
-        long_about = "remove completion marks from a character\n\
+        long_about = "remove completion marks from a character (don't type marks argument for all marks)\n\
         For a full list of available characters use `srati mark --help`",
     )]
     Unmark {
         #[arg(value_name = "character")]
         character: String,
+
+        #[arg(value_name = "marks")]
+        marks: Option<Vec<String>>
     },
 
     #[command(

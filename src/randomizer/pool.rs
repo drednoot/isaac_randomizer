@@ -79,6 +79,18 @@ impl Unlocks {
         self
     }
 
+    pub fn remove_marks(&mut self, ch: &Character, marks: &HashSet<Target>) -> &mut Self {
+        if let Some(targs) = self.marks.get_mut(&ch) {
+            for targ in marks {
+                targs.remove(targ);
+            }
+        } else {
+            return self
+        }
+
+        self
+    }
+
     pub fn set_unlocked_chars(&mut self, chars: HashSet<Character>) -> &mut Self {
         self.unlocked_chars = chars;
 
