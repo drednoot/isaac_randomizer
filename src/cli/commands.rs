@@ -3,6 +3,7 @@ use crate::randomizer::targets::Target;
 use crate::toml_parse::savefile::Savefile;
 use crate::toml_parse::savefile::Error;
 
+use std::env;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -228,5 +229,8 @@ pub fn save_to_savefile(unlocks: &Unlocks) {
 }
 
 fn get_savefile_path() -> String {
-    "sf.toml".to_string()
+    match env::var("SRATI_SF") {
+        Ok(val) => val,
+        Err(_) => "sf.toml".to_string(),
+    }
 }
