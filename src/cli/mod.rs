@@ -23,7 +23,7 @@ pub fn parse_cmd() {
 
             let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
                 Some(val) => val,
-                None => return
+                None => std::process::exit(1)
             };
             let mut savefile_updated = false;
 
@@ -66,7 +66,7 @@ pub fn parse_cmd() {
 
             let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
                 Some(val) => val,
-                None => return
+                None => std::process::exit(1)
             };
             let mut savefile_updated = false;
 
@@ -122,7 +122,7 @@ pub fn parse_cmd() {
 
             let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
                 Some(val) => val,
-                None => return
+                None => std::process::exit(1)
             };
             let mut savefile_updated = false;
 
@@ -158,7 +158,7 @@ pub fn parse_cmd() {
                 Some(c) => c,
                 None => {
                     Cli::command()
-                        .find_subcommand_mut("mark")
+                        .find_subcommand_mut("unmark")
                         .unwrap()
                         .print_help()
                         .unwrap();
@@ -169,7 +169,7 @@ pub fn parse_cmd() {
 
             let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
                 Some(val) => val,
-                None => return
+                None => std::process::exit(1)
             };
             let mut savefile_updated = false;
 
@@ -187,7 +187,10 @@ pub fn parse_cmd() {
                         }
                     }
                 }
-                None => todo!("Add remove all marks method")
+                None => {
+                    file_unlocks.remove_all_marks(&char);
+                    savefile_updated = true;
+                }
             }
 
             if savefile_updated || created_new_file {

@@ -65,7 +65,7 @@ impl Unlocks {
         }
     }
 
-    pub fn add_marks(&mut self, ch: Character, marks: HashSet<Target>) -> &mut Self {
+    pub fn set_marks(&mut self, ch: Character, marks: HashSet<Target>) -> &mut Self {
         if !self.unlocked_chars.contains(&ch) {
             self.unlocked_chars.insert(ch);
         }
@@ -79,15 +79,39 @@ impl Unlocks {
         self
     }
 
+    pub fn add_marks(&mut self, ch: Character, marks: HashSet<Target>) -> &mut Self {
+        match self.marks.get_mut(&ch) {
+            Some(targs) => {
+                for targ in marks {
+                    targs.insert(targ);
+                }
+            }
+            None => {
+                self.marks.insert(ch, marks);
+            }
+        }
+
+        self
+    }
+
     pub fn remove_marks(&mut self, ch: &Character, marks: &HashSet<Target>) -> &mut Self {
         if let Some(targs) = self.marks.get_mut(&ch) {
             for targ in marks {
                 targs.remove(targ);
             }
+
+            if self.marks.get(&ch).unwrap().is_empty() {
+                self.marks.remove(&ch);
+            }
         } else {
             return self
         }
 
+        self
+    }
+
+    pub fn remove_all_marks(&mut self, ch: &Character) -> &mut Self {
+        self.marks.remove(&ch);
         self
     }
 
@@ -206,7 +230,7 @@ impl Unlocks {
             let targs = Target::iter()
                 .filter(|targ| self.is_target_significant(targ))
                 .collect();
-            self.add_marks(ch, targs);
+            self.set_marks(ch, targs);
         }
         self.set_mantle_unlocked(true)
             .set_it_lives_unlocked(true)
