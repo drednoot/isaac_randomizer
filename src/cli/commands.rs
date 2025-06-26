@@ -157,7 +157,7 @@ pub enum Commands {
             Available options:\n\
             \tbossrush <chance from 0.0 to 1.0> -- chance to roll boss rush, 1.0 for 100%\n\
             \thush <chance from 0.0 to 1.0> -- chance to roll hush, 1.0 for 100%\n\
-            \tbossrushalt <true/false> -- roll boss rush on alt path (Mother/Beast)"
+            \tbossrushalt <true/false> -- roll boss rush on alt path (Mother/Beast); no true/false defaults to true"
     )]
     Set {
         #[arg(value_name = "key")]

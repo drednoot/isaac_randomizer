@@ -6,19 +6,34 @@ use commands::*;
 use cli_structs::*;
 use std::collections::HashSet;
 
+fn print_help(subcommand: &str) -> ! {
+    Cli::command()
+        .find_subcommand_mut(subcommand)
+        .unwrap()
+        .print_help()
+        .unwrap();
+    std::process::exit(1)
+}
+
+macro_rules! print_help_msg {
+    ($subcmd:expr, $fmt:expr $(, $arg:expr )* $(,)? ) => {{
+        Cli::command()
+            .find_subcommand_mut($subcmd)
+            .expect(concat!("unknown subcommand: ", $subcmd))
+            .print_help()
+            .unwrap();
+        eprintln!("\n{}", format!($fmt $(, $arg )*));
+        std::process::exit(1);
+    }};
+}
+
 pub fn parse_cmd() {
     let cli = Cli::parse();
 
     match cli.command {
         Some(Commands::Unlock { unlocks }) => {
             if unlocks.is_empty() {
-                Cli::command()
-                    .find_subcommand_mut("unlock")
-                    .unwrap()
-                    .print_help()
-                    .unwrap();
-                println!();
-                std::process::exit(1);
+                print_help("unlock");
             }
 
             let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
@@ -55,13 +70,7 @@ pub fn parse_cmd() {
 
         Some(Commands::Ununlock { unlocks }) => {
             if unlocks.is_empty() {
-                Cli::command()
-                    .find_subcommand_mut("ununlock")
-                    .unwrap()
-                    .print_help()
-                    .unwrap();
-                println!();
-                std::process::exit(1);
+                print_help("ununlock");
             }
 
             let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
@@ -98,26 +107,12 @@ pub fn parse_cmd() {
 
         Some(Commands::Mark { character: char_str, marks: marks_strs }) => {
             if char_str.is_empty() || marks_strs.is_empty() {
-                Cli::command()
-                    .find_subcommand_mut("mark")
-                    .unwrap()
-                    .print_help()
-                    .unwrap();
-                println!();
-                std::process::exit(1);
+                print_help("mark");
             }
 
             let char = match Unlock::try_str_to_character(char_str.as_str()) {
                 Some(c) => c,
-                None => {
-                    Cli::command()
-                        .find_subcommand_mut("mark")
-                        .unwrap()
-                        .print_help()
-                        .unwrap();
-                    println!("No such character: {}", char_str);
-                    std::process::exit(1);
-                }
+                None => print_help_msg!("mark", "No such character: {}", char_str),
             };
 
             let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
@@ -145,26 +140,12 @@ pub fn parse_cmd() {
 
         Some(Commands::Unmark { character: char_str, marks: marks_strs_opt }) => {
             if char_str.is_empty() {
-                Cli::command()
-                    .find_subcommand_mut("unmark")
-                    .unwrap()
-                    .print_help()
-                    .unwrap();
-                println!();
-                std::process::exit(1);
+                print_help("unmark");
             }
 
             let char = match Unlock::try_str_to_character(char_str.as_str()) {
                 Some(c) => c,
-                None => {
-                    Cli::command()
-                        .find_subcommand_mut("unmark")
-                        .unwrap()
-                        .print_help()
-                        .unwrap();
-                    println!("No such character: {}", char_str);
-                    std::process::exit(1);
-                }
+                None => print_help_msg!("unmark", "No such character: {}", char_str),
             };
 
             let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
@@ -199,11 +180,87 @@ pub fn parse_cmd() {
         }
 
         Some(Commands::Set { key, value }) => {
-            let val = value.unwrap();
-            if let Ok(b) = val.parse::<bool>() {
-                println!("Setting {} = {}", key, b);
-            } else if let Ok(f) = val.parse::<f64>() {
-                println!("Setting {} = {}", key, f);
+            if key.is_empty() {
+                print_help("set");
+            }
+
+            let SavefileInfo { unlocks: mut file_unlocks, created_new_file } = match read_savefile() {
+                Some(val) => val,
+                None => std::process::exit(1)
+            };
+            let savefile_updated;
+
+            match key.as_str() {
+                "bossrush" => {
+                    match value {
+                        Some(val) => {
+                            match val.parse::<f32>() {
+                                Ok(chance) => {
+                                    if chance >= 0. && chance <= 1. {
+                                        file_unlocks.set_boss_rush_chance(chance);
+                                        savefile_updated = true;
+                                    } else {
+                                        print_help_msg!("set", "Chance {} is not between 0.0 and 1.0", chance);
+                                    }
+                                }
+                                Err(_) => {
+                                    print_help_msg!("set", "Chance must be a value between 0.0 and 1.0 (your input was {})", val);
+                                }
+                            } 
+                        }
+                        None => {
+                            print_help_msg!("set", "Boss rush chance was not provided");
+                        }
+                    }
+                }
+                "hush" => {
+                    match value {
+                        Some(val) => {
+                            match val.parse::<f32>() {
+                                Ok(chance) => {
+                                    if chance >= 0. && chance <= 1. {
+                                        file_unlocks.set_hush_chance(chance);
+                                        savefile_updated = true;
+                                    } else {
+                                        print_help_msg!("set", "Chance {} is not between 0.0 and 1.0", chance);
+                                    }
+                                }
+                                Err(_) => {
+                                    print_help_msg!("set", "Chance must be a value between 0.0 and 1.0 (your input was {})", val);
+                                }
+                            } 
+                        }
+                        None => {
+                            print_help_msg!("set", "Hush chance was not provided");
+                        }
+                    }
+                }
+                "bossrushalt" => {
+                    match value {
+                        Some(val) => {
+                            match val.parse::<bool>() {
+                                Ok(b) => {
+                                    file_unlocks.set_roll_boss_rush_on_alt(b);
+                                    savefile_updated = true;
+                                }
+                                Err(_) => {
+                                    print_help_msg!("set", "Must input true/false value (your input was {})", val);
+                                }
+                            } 
+                        }
+                        None => {
+                            file_unlocks.set_roll_boss_rush_on_alt(true);
+                            savefile_updated = true;
+                        }
+                    }
+                }
+                _ => {
+                    print_help("set");
+                }
+            }
+
+            if savefile_updated || created_new_file {
+                save_to_savefile(&file_unlocks);
             }
         }
 
